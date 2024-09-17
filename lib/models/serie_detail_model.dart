@@ -1,6 +1,5 @@
-import 'dart:convert';
 
-// Classe principal
+
 class SerieDetail {
   bool adult;
   String backdropPath;

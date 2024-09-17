@@ -30,15 +30,10 @@ class _HomePageState extends State<HomePage> {
   late Future<Result> onTheAir;
   late Future<Result> popularSeries;
 
-  // Generos
-  late Future<List<Genero>> generosMovies;
-  int? selectedGenreId;
 
   @override
   void initState() {
     super.initState();
-
-    generosMovies = apiServices.getMoviesGenero();
 
     popular = apiServices.getPopularMovies();
     nowPlaying = apiServices.getNowPlayingMovies();

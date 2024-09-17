@@ -2,9 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_app/common/utils.dart';
 import 'package:movie_app/components/progress.dart';
+import 'package:movie_app/models/genero_model.dart';
 import 'package:movie_app/models/movie_detail_model.dart';
 import 'package:movie_app/models/media_model.dart';
 import 'package:movie_app/models/serie_detail_model.dart';
+import 'package:movie_app/pages/person_page.dart';
 import 'package:movie_app/services/api_services.dart';
 
 class MovieDetailPage extends StatefulWidget {
@@ -23,6 +25,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   late Future<SerieDetail>? serieDetail;
   late Future<Result>? recommendationModel;
   late Future<Result>? recommendationSerieModel;
+  late Future<ApiResponse>? credits;
+  late Future<ApiResponse>? creditsSeries;
 
   @override
   void initState() {
@@ -32,14 +36,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   fetchInitialData() {
     if (widget.isMovie == true) {
-      // Carregar os detalhes do filme
       movieDetail = apiServices.getMovieDetail(widget.mediaId);
       recommendationModel = apiServices.getMovieRecommendations(widget.mediaId);
+      credits = apiServices.getCredits(widget.mediaId);
     } else {
-      // Carregar os detalhes da série
       serieDetail = apiServices.getSerieDetail(widget.mediaId);
-      recommendationSerieModel =
-          apiServices.getSerieRecommendations(widget.mediaId);
+      recommendationSerieModel = apiServices.getSerieRecommendations(widget.mediaId);
+      creditsSeries = apiServices.getCreditsSeries(widget.mediaId);
     }
 
     setState(() {});
@@ -125,7 +128,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                   fontSize: 17,
                                 ),
                                 softWrap: true,
-                                
                               ),
                             ),
                           ],
@@ -143,6 +145,77 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                       ],
                     ),
                   ),
+                  //CREDITS
+                  const SizedBox(height: 30),
+                  FutureBuilder(
+                  future: widget.isMovie! ? credits : creditsSeries,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        final credits = snapshot.data!;
+                        return credits.cast.isEmpty
+                            ? const SizedBox(child:Text("Créditos não disponíveis"))
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Credits",
+                                    maxLines: 6,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  GridView.builder(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    padding: EdgeInsets.zero,
+                                    scrollDirection: Axis.vertical,
+                                    itemCount: credits.cast.length,
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      mainAxisSpacing: 15,
+                                      childAspectRatio: 1.5 / 2,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      return InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PersonDetailPage(
+                                                    id: credits
+                                                    .cast[index].id,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: CachedNetworkImage(
+                                          imageUrl:
+                                              "$imageUrl${credits.cast[index].profilePath}",
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              );
+                      }
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: progressSkin(20));
+                      }
+
+                      return const Center(child: Text("No data available"));
+                    },
+                  ),
+                  // RECOMENDAÇÕES
                   const SizedBox(height: 30),
                   FutureBuilder(
                     future: widget.isMovie!
@@ -208,6 +281,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                       return const Text("Something Went wrong");
                     },
                   ),
+                  
                 ],
               );
             }

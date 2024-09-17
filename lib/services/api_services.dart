@@ -7,6 +7,8 @@ import 'package:movie_app/models/movie_detail_model.dart';
 import 'package:movie_app/models/media_model.dart';
 import 'package:movie_app/models/serie_detail_model.dart';
 
+import '../models/person_detail.dart';
+
 const baseUrl = 'https://api.themoviedb.org/3/';
 const key = '?api_key=$apiKey';
 
@@ -159,23 +161,6 @@ class ApiServices {
     throw Exception('failed to load serie details');
   }
 
-  Future<List<Genero>> getMoviesGenero() async {
-    await Future.delayed(const Duration(seconds: 2));
-    const endPoint = 'genre/movie/list';
-    const url = '$baseUrl$endPoint$key';
-
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      List<dynamic> genresJson = jsonResponse['genres'];
-      List<Genero> generos =
-          genresJson.map((json) => Genero.fromJson(json)).toList();
-
-      return generos;
-    }
-    throw Exception('failed to load movies genero details');
-  }
-
   Future<Result> getTopRatedSeries() async {
     await Future.delayed(const Duration(seconds: 2));
     var endPoint = 'tv/top_rated';
@@ -214,6 +199,39 @@ class ApiServices {
       return Result.fromJson(jsonDecode(response.body));
     }
     throw Exception('failed to load to rated series');
+  }
+
+  Future<ApiResponse> getCredits(int id) async{
+     await Future.delayed(const Duration(seconds: 2));
+    var endPoint = 'movie/$id/credits';
+    final url = '$baseUrl$endPoint$key';
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      return ApiResponse.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('failed to load to credits');
+  }
+
+  Future<ApiResponse> getCreditsSeries(int id) async{
+     await Future.delayed(const Duration(seconds: 2));
+    var endPoint = 'tv/$id/credits';
+    final url = '$baseUrl$endPoint$key';
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      return ApiResponse.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('failed to load to credits');
+  }
+
+    Future<Person> getDetailsPerson(int id) async{
+     await Future.delayed(const Duration(seconds: 2));
+    var endPoint = 'person/$id';
+    final url = '$baseUrl$endPoint$key';
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      return Person.fromJson(jsonDecode(response.body));
+    }
+    throw Exception('failed to load to credits');
   }
 
 

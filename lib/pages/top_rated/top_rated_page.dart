@@ -17,6 +17,7 @@ class _TopRatedPageState extends State<TopRatedPage> {
   Future<Result>? topRatedSeries; // Inicializando como nullable
   bool isMovie = true;
   bool isLoading = false;
+  String title = "Movies";
 
   @override
   void initState() {
@@ -53,7 +54,7 @@ class _TopRatedPageState extends State<TopRatedPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Top Rated Movies'), 
+        title:  Text('Top Rated $title'), 
       ),
       body: Column(
         children: [
@@ -95,9 +96,11 @@ class _TopRatedPageState extends State<TopRatedPage> {
         children: [
           button("Filmes", isMovie, () {
             _changeMediaType(true);
+            title = "Movie";
           }),
           button("Séries", !isMovie, () {
             _changeMediaType(false);
+            title = "Series";
           }),
         ],
       ),

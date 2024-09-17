@@ -81,15 +81,15 @@ class Media {
         posterPath: json["poster_path"] ?? '',
         releaseDate: json["release_date"] != null 
             ? DateTime.tryParse(json["release_date"]) 
-            : null,                                   // Para filmes
+            : null,                                 
         firstAirDate: json["first_air_date"] != null 
             ? DateTime.tryParse(json["first_air_date"]) 
-            : null,                                   // Para séries
-        title: json["title"],                         // Para filmes
-        name: json["name"],                           // Para séries
+            : null,                                  
+        title: json["title"],                         
+        name: json["name"],                          
         originCountry: json["origin_country"] != null
             ? List<String>.from(json["origin_country"].map((x) => x))
-            : null,                                   // Para séries
+            : null,                                   
         video: json["video"] ?? false,
         voteAverage: json["vote_average"]?.toDouble() ?? 0,
         voteCount: json["vote_count"] ?? 0,
