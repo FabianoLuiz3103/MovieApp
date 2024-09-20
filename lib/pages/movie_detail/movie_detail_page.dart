@@ -41,7 +41,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       credits = apiServices.getCredits(widget.mediaId);
     } else {
       serieDetail = apiServices.getSerieDetail(widget.mediaId);
-      recommendationSerieModel = apiServices.getSerieRecommendations(widget.mediaId);
+      recommendationSerieModel =
+          apiServices.getSerieRecommendations(widget.mediaId);
       creditsSeries = apiServices.getCreditsSeries(widget.mediaId);
     }
 
@@ -148,12 +149,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   //CREDITS
                   const SizedBox(height: 30),
                   FutureBuilder(
-                  future: widget.isMovie! ? credits : creditsSeries,
+                    future: widget.isMovie! ? credits : creditsSeries,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         final credits = snapshot.data!;
                         return credits.cast.isEmpty
-                            ? const SizedBox(child:Text("Créditos não disponíveis"))
+                            ? const SizedBox(
+                                child: Text("Créditos não disponíveis"))
                             : Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -167,39 +169,125 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-                                  GridView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    padding: EdgeInsets.zero,
-                                    scrollDirection: Axis.vertical,
-                                    itemCount: credits.cast.length,
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      mainAxisSpacing: 15,
-                                      childAspectRatio: 1.5 / 2,
-                                    ),
-                                    itemBuilder: (context, index) {
-                                      return InkWell(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  PersonDetailPage(
-                                                    id: credits
-                                                    .cast[index].id,
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: List.generate(
+                                          credits.cast.length, (index) {
+                                        final castMember = credits.cast[index];
+                                        final hasProfileImage =
+                                            castMember.profilePath != null &&
+                                                castMember
+                                                    .profilePath!.isNotEmpty;
+                                        return InkWell(
+                                          onTap: () {
+                                            if (!hasProfileImage) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                   backgroundColor: Colors.red,
+                                                  content: Text(
+                                                      'Dados não disponíveis!', style: TextStyle(color: Colors.white),),
+                                                ),
+                                              );
+                                            } else {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      PersonDetailPage(
+                                                    id: castMember.id,
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: Stack(
+                                            children: [
+                                              Container(
+                                                height: 200,
+                                                width: 140,
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(18),
+                                                ),
+                                                foregroundDecoration:
+                                                    BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    begin:
+                                                        Alignment.bottomCenter,
+                                                    end: Alignment.topCenter,
+                                                    colors: [
+                                                      Colors.black
+                                                          .withOpacity(0.8),
+                                                      Colors.transparent,
+                                                    ],
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(18),
+                                                ),
+                                                child: hasProfileImage
+                                                    ? CachedNetworkImage(
+                                                        imageUrl:
+                                                            "$imageUrl${castMember.profilePath}",
+                                                        fit: BoxFit.cover,
+                                                        errorWidget: (context,
+                                                                url, error) =>
+                                                            Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        18),
+                                                            image:
+                                                                const DecorationImage(
+                                                              fit: BoxFit.cover,
+                                                              image: AssetImage(
+                                                                  'images/sem_imagem.png'),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      )
+                                                    : Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(18),
+                                                          image:
+                                                              const DecorationImage(
+                                                            fit: BoxFit.cover,
+                                                            image: AssetImage(
+                                                                'images/sem_imagem.png'),
+                                                          ),
+                                                        ),
+                                                      ),
                                               ),
-                                            ),
-                                          );
-                                        },
-                                        child: CachedNetworkImage(
-                                          imageUrl:
-                                              "$imageUrl${credits.cast[index].profilePath}",
-                                        ),
-                                      );
-                                    },
+                                              Positioned(
+                                                left: 15,
+                                                right: 15,
+                                                bottom: 10,
+                                                child: Text(
+                                                  castMember.name,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                    ),
                                   ),
                                 ],
                               );
@@ -215,6 +303,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                       return const Center(child: Text("No data available"));
                     },
                   ),
+
                   // RECOMENDAÇÕES
                   const SizedBox(height: 30),
                   FutureBuilder(
@@ -278,10 +367,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                 ],
                               );
                       }
-                      return const Text("Something Went wrong");
+                      return const Text("Carregando");
                     },
                   ),
-                  
                 ],
               );
             }

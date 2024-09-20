@@ -63,9 +63,10 @@ class _PersonDetailPageState extends State<PersonDetailPage> {
                 height: MediaQuery.of(context).size.height * 0.4,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: CachedNetworkImageProvider(
+                    image: person.profilePath != null ? CachedNetworkImageProvider(
                       "https://image.tmdb.org/t/p/w500${person.profilePath}",
-                    ),
+                    ): const AssetImage('images/sem_imagem.png') 
+                      as ImageProvider,
                     fit: BoxFit.cover,
                   ),
                 ),
